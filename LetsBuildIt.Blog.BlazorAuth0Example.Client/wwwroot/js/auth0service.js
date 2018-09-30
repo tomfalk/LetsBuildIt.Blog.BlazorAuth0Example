@@ -42,7 +42,7 @@ var Auth0Service = function() {
                 dotnetHelper.invokeMethodAsync('HandleTokenRenewedFail');
             }
         });
-    }
+    };
 
     return {
         //== Init lock

@@ -14,6 +14,7 @@ namespace LetsBuildIt.Blog.BlazorAuth0Example.Client
         public bool IsLoggedIn { get; private set; }
         public string AccessToken { get; private set; }
         public string IdToken { get; private set; }
+
         private DateTime? ExpiresAt { get; set; }
 
         // Login notifications
@@ -28,28 +29,56 @@ namespace LetsBuildIt.Blog.BlazorAuth0Example.Client
             InitLock();
         }
 
-        public async Task InitLock()
+        // Public Methods
+
+        public Task Login()
+        {
+            return JSRuntime.Current.InvokeAsync<object>("Auth0Service.login");
+        }
+
+        public Task Logout()
+        {
+            ClearSession();
+            return JSRuntime.Current.InvokeAsync<object>("Auth0Service.logout");
+        }
+
+        // JS Invokable Methods
+
+        [JSInvokable]
+        public Task HandleLoginSuccess(object authResultJSON)
+        {
+            return SetSession(authResultJSON);
+        }
+
+        [JSInvokable]
+        public Task HandleTokenRenewedSuccess(object authResultJSON)
+        {
+            return SetSession(authResultJSON);
+        }
+
+        [JSInvokable]
+        public void HandleLoginFail()
+        {
+            ClearSession();
+        }
+
+        [JSInvokable]
+        public void HandleTokenRenewedFail()
+        {
+            ClearSession();
+        }
+
+        // Private Methods
+
+        private async void InitLock()
         {
             await JSRuntime.Current.InvokeAsync<object>("Auth0Service.init", new DotNetObjectRef(this));
             await LoadSession();
-
-            //await ExampleJsInterop.Prompt("Hello");
         }
 
-        public async Task Login()
+        private Task RenewToken()
         {
-            await JSRuntime.Current.InvokeAsync<object>("Auth0Service.login");         
-        }
-
-        public async Task Logout()
-        {
-            await ClearSession();
-            await JSRuntime.Current.InvokeAsync<object>("Auth0Service.logout");
-        }
-
-        private async Task RenewToken()
-        {
-            await JSRuntime.Current.InvokeAsync<object>("Auth0Service.renewToken", new DotNetObjectRef(this));
+            return JSRuntime.Current.InvokeAsync<object>("Auth0Service.renewToken", new DotNetObjectRef(this));
         }
 
         private async Task LoadSession()
@@ -83,7 +112,7 @@ namespace LetsBuildIt.Blog.BlazorAuth0Example.Client
             NotifyLoggedIn();
         }
 
-        private async Task ClearSession()
+        private void ClearSession()
         {
             IsLoggedIn = false;
             IdToken = null;
@@ -91,33 +120,6 @@ namespace LetsBuildIt.Blog.BlazorAuth0Example.Client
             ExpiresAt = null;
             _storage.RemoveItem("expires_at");
         }
-
-        // JS Invokable Methods
-        [JSInvokable]
-        public async Task HandleLoginSuccess(object authResultJSON)
-        {
-            await SetSession(authResultJSON);
-
-        }
-
-        [JSInvokable]
-        public async Task HandleTokenRenewedSuccess(object authResultJSON)
-        {
-            await SetSession(authResultJSON);
-        }
-
-        [JSInvokable]
-        public async Task HandleLoginFail()
-        {
-            await ClearSession();
-        }
-
-        [JSInvokable]
-        public async Task HandleTokenRenewedFail()
-        {
-            await ClearSession();
-        }
-
 
         private void NotifyLoggedIn() => LoginSuccess?.Invoke();
     }

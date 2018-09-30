@@ -27,14 +27,14 @@ namespace LetsBuildIt.Blog.BlazorAuth0Example.Client.Services
             _auth0Service.LoginSuccess += LoggedIn;
         }
 
-        public async Task Login()
+        public Task Login()
         {
-            await _auth0Service.Login();        
+            return _auth0Service.Login();        
         }
 
-        public async Task Logout()
+        public Task Logout()
         {
-            await _auth0Service.Logout();
+            return _auth0Service.Logout();
         }
         
         //public bool IsLoggedIn()
