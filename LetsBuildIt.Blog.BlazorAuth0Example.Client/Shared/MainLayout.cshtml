@@ -24,19 +24,18 @@
 </div>
 
 @functions {
+    protected override void OnInit()
+    {
+        state.OnChange += StateHasChanged;
+    }
 
-protected override void OnInit()
-{
-    state.OnChange += StateHasChanged;
-}
+    async Task Login()
+    {
+        await state.Login();
+    }
 
-async Task Login()
-{
-    await state.Login();
-}
-
-async Task Logout()
-{
-    await state.Logout();
-}
+    async Task Logout()
+    {
+        await state.Logout();
+    }
 }

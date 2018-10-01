@@ -36,11 +36,6 @@ namespace LetsBuildIt.Blog.BlazorAuth0Example.Client.Services
         {
             return _auth0Service.Logout();
         }
-        
-        //public bool IsLoggedIn()
-        //{
-        //    return _auth0Service.IsLoggedIn;
-        //}
 
         private void LoggedIn()
         {
